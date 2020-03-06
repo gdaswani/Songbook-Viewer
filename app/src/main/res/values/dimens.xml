@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="booklist_hsize">180dp</dimen>
+    <dimen name="search_vsize">140dp</dimen>
+    <dimen name="search_titleText_hsize">250dp</dimen>
+    <dimen name="search_artistText_hsize">250dp</dimen>
+</resources>

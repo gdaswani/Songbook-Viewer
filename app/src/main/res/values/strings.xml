@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Songbook Viewer</string>
+    <string name="artist">Artist</string>
+    <string name="title">Title</string>
+    <string name="button_search">Search</string>
+    <string name="button_clear">Clear</string>
+    <string name="songbook_service_disconnected">SongbookService disconnected</string>
+    <string name="songbook_service_connected">SongBookService connected</string>
+    <string name="initializing_message">Initializing, please wait..</string>
+    <string name="importing_message">Importing, please wait..</string>
+    <string name="deleting_message">Deleting, please wait..</string>
+    <string name="processing_message">Processing, please wait..</string>
+    <string name="searching_message">Searching, please wait..</string>
+    <string name="loading_message">Loading, please wait..</string>
+    <string name="title_index_list">Index</string>
+    <string name="index_by_artist">By Artist</string>
+    <string name="query_hint">Enter Text to Search&#8230;</string>
+    <string name="menu_songbook">Song Book</string>
+    <string name="managesb_button_addsongbook">Add</string>
+    <string name="managesb_title">Manage Songbook(s)</string>
+    <string name="managesb_label_name">Name</string>
+    <string name="managesb_label_description">Description</string>
+    <string name="managesb_import_required">Please select a file, and populate the name field, both are required for import&#8230;</string>
+    <string name="managesb_button_selectfile">Select File</string>
+    <string name="managesb_button_importsongbook">Import</string>
+    <string name="managesb_button_oksongbook">Finish</string>
+    <string name="managesb_button_cancelimportsongbook">Cancel</string>
+    <string name="managesb_cmenu_header">Manage</string>
+    <string name="managesb_cmenu_delete">Delete</string>
+    <string name="managesb_task_setdefault_succcess">Set as Default successful&#8230;</string>
+    <string name="managesb_task_setdefault_failure">Set as Default failed&#8230;</string>
+    <string name="managesb_task_delete_succcess">Delete successful&#8230;</string>
+    <string name="managesb_task_delete_failure">Delete failed&#8230;</string>
+    <string name="managesb_cmenu_setdefault">Set As Default</string>
+    <string name="managesb_cmenu_load">Load</string>
+    <string name="content_song_title">Title:</string>
+    <string name="content_song_artist">Artist:</string>
+    <string name="content_songbook_name">Name:</string>
+    <string name="content_songbook_description">Description:</string>
+    <string name="location">Location</string>
+    <string name="cant_read_folder">folder can\'t be read!</string>
+    <string name="select">Select</string>
+    <string name="file_name">File name:</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Save</string>
+    <string name="no_data">No Data</string>
+    <string name="row_image">Row Image</string>
+
+    <color name="gray">#ffff0000</color>
+
+</resources>

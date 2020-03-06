@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="songbook.viewer"
+    android:versionCode="20191225"
+    android:versionName="REL" >
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:noHistory="false">
+        <activity
+            android:name=".SongbookViewerActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="sensor" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SongbookManageActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/managesb_title"
+            android:noHistory="false"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="songbook.viewer.intent.action.MANAGE_SONGBOOK" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.lamerman.FileDialog"
+            android:label="@string/app_name"
+            android:noHistory="false" >
+            <intent-filter>
+                <action android:name="songbook.viewer.intent.action.SELECT_SONGBOOK" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".services.SongbookService"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name=".services.SongbookService" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

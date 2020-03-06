@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/manageSBViewFlipper"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/listViewSongbooks"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+        </ListView>
+
+        <Button
+            android:id="@+id/buttonAddSongbook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="@string/managesb_button_addsongbook"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <Button
+            android:id="@+id/buttonOKSongbook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@id/buttonAddSongbook"
+            android:text="@string/managesb_button_oksongbook"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/buttonSelectFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/managesb_button_selectfile"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <TextView
+            android:id="@+id/labelImportName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buttonSelectFile"
+            android:text="@string/managesb_label_name"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <EditText
+            android:id="@+id/importNameText"
+            android:layout_width="125dip"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/labelImportName"
+            android:inputType="textCapCharacters"
+            android:maxLength="10"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <TextView
+            android:id="@+id/labelImportDesc"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/importNameText"
+            android:text="@string/managesb_label_description"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <EditText
+            android:id="@+id/importDescText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/labelImportDesc"
+            android:inputType="text"
+            android:maxLength="30"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <Button
+            android:id="@+id/buttonImportSongbook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="@string/managesb_button_importsongbook"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+
+        <Button
+            android:id="@+id/buttonCancelAddSongbook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@id/buttonImportSongbook"
+            android:text="@string/managesb_button_cancelimportsongbook"
+            android:textAppearance="@android:style/TextAppearance.Small" />
+    </RelativeLayout>
+
+</ViewFlipper>

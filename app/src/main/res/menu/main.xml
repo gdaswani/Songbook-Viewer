@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_search"
+        android:actionViewClass="android.widget.SearchView"
+        android:showAsAction="ifRoom"
+        android:title="Search"/>
+
+    <item
+        android:id="@+id/menu_songbook"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/menu_songbook"/>
+
+</menu>
