@@ -481,7 +481,7 @@
 00481|Devil Woman|Marty Robbins
 00482|Ring Of Fire|Johnny Cash
 00483|Right Or Wrong|Wanda Jackson
-00484|It S Four In The Morning|Faron Young
+00484|It's Four In The Morning|Faron Young
 00485|Candy Kisses|George Morgan
 00486|A Lesson In Leaving|Dottie West
 00487|I Can't Help It If I M Still In|Hank Williams
@@ -5721,7 +5721,7 @@
 05721|Just Because|Jane's Addiction
 05722|Get On Your Feet|Gloria Estefan
 05723|She's Like The Wind|Patrick Swayze
-05724|Sleigh Ride|
+05724|Sleigh Ride|Unknown
 05725|Dead & Gone|T.I. & Justin Timberlake
 05726|The Legend Of Wooley Swamp|The Charlie Daniels Band
 05727|Outside|Aaron Lewis
@@ -5802,7 +5802,7 @@
 05802|I Can't Get No Satisfaction|Britney Spears
 05803|Long Slow Beautiful Dance|Rascal Flatts
 05804|Candy|Mandy Moore
-05805|Free|
+05805|Free|Unknown
 05806|Snowfall On The Sahara|Natalie Cole
 05807|Separate Lives|Phil Collins
 05808|Dont Stop The Music|Rihanna
@@ -6039,7 +6039,7 @@
 06039|1 2 3|Gloria Estefan
 06040|Think Twice|Celine Dion
 06041|All I Have|Ll Cool J
-06042|Oh Baby|
+06042|Oh Baby|Unknown
 06043|You Still Take Me There|Collin Raye
 06044|I Could Be The One|Donna Lewis
 06045|Purple Haze|Jimi Hendrix
@@ -6415,7 +6415,7 @@
 06415|Straight Tequila Night|John Anderson
 06416|Born Free|Matt Monro
 06417|I'll Always Love You|Taylor Dayne
-06418|Build Me Up Buttercup|
+06418|Build Me Up Buttercup|Unknown
 06419|You Don't Have To Say You Love|Elvis Presley
 06420|Thank You For Loving Me|Bon Jovi
 06421|American Woman|The Guess Who
@@ -7522,7 +7522,7 @@
 07522|Devoted To You|The Everly Brothers
 07523|That Don't Impress Me Much|Shania Twain
 07524|It's Sad To Belong|England Dan & John Ford Coley
-07525|Baby Now|
+07525|Baby Now|Unknown
 07526|Long Distance Runaround|Yes
 07527|Hey Paula|Paul & Paula
 07528|Drifter|Sylvia
@@ -7900,7 +7900,7 @@
 07900|Waste A Moment|Kings Of Leon
 07901|Perfect Illusion|Lady Gaga
 07902|In The Name Of Love|Marin Garrix
-07903|Nobody But Me|Michael Buble
+07903|Nobody But Me |Michael Buble
 07904|Nobody But Me|Michael Buble
 07905|Future Looks Good|One Republic
 07906|Kids|One Republic
@@ -8202,10 +8202,10 @@
 08202|High Hopes|Panic! At The Disco
 08203|Try|Rick Astley
 08204|Thank U Next|Ariana Grande
-08205|No Matter What|Colum Scott
+08205|No Matter What|Calum Scott
 08206|Love Made Me Do It|Cheryl
 08207|Baby|Clean Bandit
-08208|The Power Of Love|Dalton
+08208|The Power Of Love|Dalton Harris
 08209|Hold My Girl|George Ezra
 08210|Without Me|Halsey
 08211|Empty Space|James Arthur
@@ -8213,17 +8213,17 @@
 08213|Play|Jax Jones
 08214|Thursday|Jess Glynne
 08215|Better|Khalid
-08216|Music's Too Sad Without You|Kylie
-08217|Woman LIke Me|Little Mix
+08216|Musics Too Sad Without You|Kylie
+08217|Woman Like Me|Little Mix
 08218|Nothing Breaks Like A Heart|Mark Ronson
 08219|She Makes Me|Rick Astley
-08220|Let You Love Me|Rita Ora
+08220|Let Me Love You|Rita Ora
 08221|Priceless|Sheridan Smith
 08222|Electricity|Silk City
 08223|Angels|Tom Walker
 08224|Forever Now|Michael Buble
 08225|Love You Anymore|Michael Buble
-08226|When You're Not Here|Michael Buble
+08226|When Youre Not Here|Michael Buble
 08227|Help Me Make It Through The Night|Michael Buble
 08228|A Million Dreams|Pink
 08229|Tightrope|Sara Bareilles
@@ -8231,14 +8231,14 @@
 08231|Rewrite The Stars|James Arthur
 08232|Alibi|Bradley Cooper
 08233|Black Eyes|Bradley Cooper
-08234|Maybe It's Time|Bradley Cooper
-08235|Diggin' My Grave|Lady Gaga
+08234|Maybe Its Time|Bradley Cooper
+08235|Diggin My Grave|Lady Gaga
 08236|Music To My Eyes|Lady Gaga
 08237|Before I Cry|Lady Gaga
 08238|Hair Body Face|Lady Gaga
 08239|Why Did You Do That|Lady Gaga
-08240|Breathin'|Ariana Grande
-08241|Jealous Of Angels|Donna Taggart
+08240|Breathin|Ariana Grande
+08241|Jealous Of The Angels|Donna Taggart
 08242|Sometimes|Gerry Cinnamon
 08243|Why Her Not Me|Grace Carter
 08244|Lash Out|Alice Merton
@@ -8306,7 +8306,7 @@
 08306|One Touch|Jess Glynne
 08307|Grace|Lewis Capaldi
 08308|Hold Me While You Wait|Lewis Capaldi
-08309|Old Town Road Duet|Lil Nas X And Billy Ray Cyrus
+08309|Old Town Road Duet|Lil Nas And Billy Ray Cyrus
 08310|Old Town Road|Lil Nas X And Billy Ray Cyrus
 08311|If I Cant Have You|Shawn Mendes
 08312|You Need To Calm Down|Taylor Swift
@@ -8372,3 +8372,48 @@
 08372|Bruises|Lewis Capaldi
 08373|Memories|Maroon 5
 08374|Nice To Meet Ya|Niall Horan
+08375|Don't Call Me Angel|Ariana Grande, Miley Cyrus & Lana Del Rey
+08376|Liar|Camila Cabello
+08377|Mother|Charlie Puth
+08378|10000 Hours|Dan, Shay & Justin Beiber
+08379|Take Me Back To London (Remix)|Ed Sheeran Ft Stormzy, Jaykae & Aitch
+08380|All Is Found|Frozen 2
+08381|Some Things Never Change|Frozen 2
+08382|The Next Right Thing|Frozen 2
+08383|When I Am Older|Frozen 2
+08384|Canter|Gerry Cinnamon
+08385|Lights Up|Harry Styles
+08386|You|James Arthur
+08387|Bruises|Lewis Capaldi
+08388|Memories|Maroon 5
+08389|Nice To Meet Ya|Niall Horan
+08390|Dance Monkey|Tones And I
+08391|Time For Change|Robbie Williams
+08392|Into The Unknown|Panic At The Disco
+08393|Loneliest Time Of Year|Mabel
+08394|Now That Ive Found You|Liam Gallagher
+08395|Harleys In Hawaii|Katy Perry
+08396|All Is Found|Kacey Musgraves
+08397|Watermelon Sugar|Harry Styles
+08398|Show Yourself|Frozen 2
+08399|Lost In The Woods|Frozen 2
+08400|Into The Unknown|Frozen 2
+08401|Dont Start Now|Dua Lipa
+08402|Outnumbered|Dermot Kennedy
+08403|You Cant Stop The Girl|Bebe Rexha
+08404|Roxanne|Arizona Zervas
+08405|Everything I Ever Wanted|Billie Eilish
+08406|Living Proof|Camila Cabello
+08407|Strange|Celeste
+08408|Everyday Life|Coldplay
+08409|Future Nostalgia|Dua Lipa
+08410|The Bonny|Gerry Cinnamon
+08411|You Should Be Sad|Halsey
+08412|Adore You|Harry Styles
+08413|Treat People With Kindness|Harry Styles
+08414|This Is Real|Jax Jones & Ella Henderson
+08415|One More Try|Jessie J
+08416|Yummy|Justin Bieber
+08417|Before You Go|Lewis Capaldi
+08418|Saturday|Sam Fender
+08419|Trampoline|Shaed & Zayn
