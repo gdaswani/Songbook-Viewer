@@ -8,8 +8,8 @@ android {
         applicationId "songbook.viewer"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 20200326
-        versionName "REL20200326"
+        versionCode 20200327
+        versionName "REL20200327"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
