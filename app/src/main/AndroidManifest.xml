@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="songbook.viewer"
-    android:versionCode="20210829"
+    android:versionCode="20220413"
     android:versionName="REL" >
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -14,8 +14,8 @@
         android:noHistory="false">
         <activity
             android:name=".SongbookViewerActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="sensor" >
+            android:screenOrientation="sensor"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,7 +27,8 @@
             android:excludeFromRecents="true"
             android:label="@string/managesb_title"
             android:noHistory="false"
-            android:theme="@android:style/Theme.Dialog" >
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false">
             <intent-filter>
                 <action android:name="songbook.viewer.intent.action.MANAGE_SONGBOOK" />
 
@@ -36,8 +37,8 @@
         </activity>
         <activity
             android:name="com.lamerman.FileDialog"
-            android:label="@string/app_name"
-            android:noHistory="false" >
+            android:noHistory="false"
+            android:exported="false">
             <intent-filter>
                 <action android:name="songbook.viewer.intent.action.SELECT_SONGBOOK" />
 
