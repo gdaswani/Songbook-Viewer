@@ -21,6 +21,8 @@
     <string name="sbadd_tv_name">Name:</string>
     <string name="sbadd_tv_description">Description:</string>
     <string name="sbadd_button_importsongbook">Import</string>
+    <string name="sbadd_te_name_hint">Name</string>
+    <string name="sbadd_te_description_hint">Description</string>
     <string name="managesb_button_addsongbook">Download Manager</string>
     <string name="managesb_title">Manage Songbook(s)</string>
     <string name="managesb_label_name">Name</string>

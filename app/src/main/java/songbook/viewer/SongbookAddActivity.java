@@ -1,5 +1,6 @@
 package songbook.viewer;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,15 +17,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.fragment.app.FragmentActivity;
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import songbook.viewer.services.SongbookService;
 
-public class SongbookAddActivity extends FragmentActivity {
+public class SongbookAddActivity extends Activity {
 
     private final String TAG = SongbookAddActivity.class.getCanonicalName();
 
@@ -135,12 +133,27 @@ public class SongbookAddActivity extends FragmentActivity {
             return description;
         }
 
+        public ImportParameter setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
         public InputStream getInputStream() {
             return inputStream;
         }
 
+        public ImportParameter setInputStream(InputStream inputStream) {
+            this.inputStream = inputStream;
+            return this;
+        }
+
         public String getName() {
             return name;
+        }
+
+        public ImportParameter setName(String name) {
+            this.name = name;
+            return this;
         }
 
         public boolean isDefaultFlag() {
@@ -149,21 +162,6 @@ public class SongbookAddActivity extends FragmentActivity {
 
         public ImportParameter setDefaultFlag(boolean defaultFlag) {
             this.defaultFlag = defaultFlag;
-            return this;
-        }
-
-        public ImportParameter setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public ImportParameter setInputStream(InputStream inputStream) {
-            this.inputStream = inputStream;
-            return this;
-        }
-
-        public ImportParameter setName(String name) {
-            this.name = name;
             return this;
         }
 
@@ -199,7 +197,7 @@ public class SongbookAddActivity extends FragmentActivity {
 
             progressDialog.dismiss();
 
-            String message = null;
+            String message;
 
             if (errorMessage != null) {
 

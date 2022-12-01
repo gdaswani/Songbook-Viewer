@@ -32,190 +32,21 @@ import songbook.viewer.services.SongbookService;
 
 public class SongbookManageActivity extends Activity {
 
-    private class DeleteTask extends AsyncTask<Long, Void, Long> {
-
-        private final String TAG = DeleteTask.class.getCanonicalName();
-
-        private ProgressDialog progressDialog;
-
-        private String errorMessage = null;
-
-        protected Long doInBackground(Long... params) {
-
-            Log.d(TAG, "doInBackground - starting");
-
-            try {
-
-                mSongbookService.deleteSongbook(params[0]);
-
-            } catch (IllegalArgumentException error) {
-                errorMessage = error.getMessage();
-            }
-
-            Log.d(TAG, "doInBackground - finished");
-
-            return params[0];
-        }
-
-        protected void onPostExecute(Long songBookId) {
-
-            loadSBList();
-
-            progressDialog.dismiss();
-
-            String message = null;
-
-            if (errorMessage != null) {
-
-                Log.e(TAG, errorMessage);
-
-                message = getString(R.string.managesb_task_delete_failure);
-
-            } else {
-                message = getString(R.string.managesb_task_delete_succcess);
-            }
-
-            // add ID to the delete list RESULT
-
-            resultIntent.putExtra(RESULT_COMMAND, CONTEXT_DELETE);
-
-            long[] deleteSet = resultIntent
-                    .getLongArrayExtra(RESULT_DELETELIST);
-
-            Set<Long> newSet = new HashSet<Long>();
-
-            if (deleteSet != null) {
-
-                for (long value : deleteSet) {
-                    newSet.add(value);
-                }
-
-            }
-
-            newSet.add(songBookId);
-
-            // Ugly way to Copy
-
-            deleteSet = new long[newSet.size()];
-
-            int i = 0;
-
-            for (Iterator<Long> iterator = newSet.iterator(); iterator
-                    .hasNext(); i++) {
-
-                deleteSet[i] = iterator.next();
-
-            }
-
-            resultIntent.putExtra(RESULT_DELETELIST, deleteSet);
-
-            // display message
-
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
-                    .show();
-
-            Log.d(TAG, "doInBackground - onPostExecute");
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            progressDialog = new ProgressDialog(SongbookManageActivity.this);
-            progressDialog.setMessage(getString(R.string.deleting_message));
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
-        }
-    }
-
-
-    private class SetDefaultTask extends AsyncTask<Long, Void, Void> {
-
-        private final String TAG = SetDefaultTask.class.getCanonicalName();
-
-        private ProgressDialog progressDialog;
-
-        private String errorMessage = null;
-
-        protected Void doInBackground(Long... params) {
-
-            Log.d(TAG, "doInBackground - starting");
-
-            try {
-                mSongbookService.setAsDefault(params[0]);
-            } catch (IllegalArgumentException error) {
-                errorMessage = error.getMessage();
-            }
-
-            Log.d(TAG, "doInBackground - finished");
-
-            return null;
-        }
-
-        protected void onPostExecute(Void ignore) {
-
-            progressDialog.dismiss();
-
-            String message = null;
-
-            if (errorMessage != null) {
-
-                Log.e(TAG, errorMessage);
-
-                message = getString(R.string.managesb_task_setdefault_failure);
-
-            } else {
-                message = getString(R.string.managesb_task_setdefault_succcess);
-            }
-
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
-                    .show();
-
-            Log.d(TAG, "doInBackground - onPostExecute");
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            progressDialog = new ProgressDialog(SongbookManageActivity.this);
-            progressDialog.setMessage(getString(R.string.processing_message));
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
-        }
-    }
-
     public final static int CONTEXT_DELETE = 1;
-
     public final static int CONTEXT_SET_DEFAULT = 2;
-
     public final static int CONTEXT_LOAD = 3;
-
     public final static String RESULT_COMMAND = "resultCommand";
-
     public final static String RESULT_DELETELIST = "resultDeleteList";
-
     public final static String RESULT_LOADSBID = "resultLoadSBId";
-
     private final String TAG = SongbookManageActivity.class.getCanonicalName();
-
-    private RelativeLayout layout;
-
-    private SongbookService mSongbookService;
-
-    private ListView listView;
-
     private final Intent resultIntent = new Intent("");
-
+    private RelativeLayout layout;
+    private SongbookService mSongbookService;
+    private ListView listView;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className, IBinder service) {
-            mSongbookService = ((SongbookService.SongbookBinder) service)
-                    .getService();
+            mSongbookService = ((SongbookService.SongbookBinder) service).getService();
 
             loadSBList();
 
@@ -235,13 +66,7 @@ public class SongbookManageActivity extends Activity {
 
         if (listView.getAdapter() == null) {
 
-            cursorAdapter = new SimpleCursorAdapter(this,
-                    R.layout.songbook_list_item, null, new String[]{
-                    SQLHelper.tblSongbook_ID,
-                    SQLHelper.tblSongbook_NAME,
-                    SQLHelper.tblSongbook_DESC}, new int[]{
-                    R.id.sbListItem_id, R.id.sbListItem_name,
-                    R.id.sbListItem_desc}, 0);
+            cursorAdapter = new SimpleCursorAdapter(this, R.layout.songbook_list_item, null, new String[]{SQLHelper.tblSongbook_ID, SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC}, new int[]{R.id.sbListItem_id, R.id.sbListItem_name, R.id.sbListItem_desc}, 0);
 
             listView.setAdapter(cursorAdapter);
 
@@ -249,8 +74,7 @@ public class SongbookManageActivity extends Activity {
 
         cursorAdapter = (SimpleCursorAdapter) listView.getAdapter();
 
-        cursorAdapter
-                .changeCursor(mSongbookService.retrieveSongBooksByCursor());
+        cursorAdapter.changeCursor(mSongbookService.retrieveSongBooksByCursor());
 
         cursorAdapter.notifyDataSetChanged();
 
@@ -259,6 +83,12 @@ public class SongbookManageActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         Log.d(TAG, "onActivityResult");
+
+        Log.d(TAG, String.format("requestCode = %1$d, resultCode = %2$d", requestCode, resultCode));
+
+        if (requestCode == 1) {
+            loadSBList();
+        }
 
     }
 
@@ -339,7 +169,7 @@ public class SongbookManageActivity extends Activity {
 
                 Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
 
-                startActivity(intent);
+                startActivityForResult(intent, 1);
 
             }
         });
@@ -358,16 +188,14 @@ public class SongbookManageActivity extends Activity {
 
         registerForContextMenu(listView);
 
-        bindService(new Intent(SongbookManageActivity.this,
-                SongbookService.class), mConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(SongbookManageActivity.this, SongbookService.class), mConnection, Context.BIND_AUTO_CREATE);
 
         Log.d(TAG, "onCreate");
 
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 
         super.onCreateContextMenu(menu, v, menuInfo);
 
@@ -396,6 +224,158 @@ public class SongbookManageActivity extends Activity {
         super.onDestroy();
 
         unbindService(mConnection);
+    }
+
+    private class DeleteTask extends AsyncTask<Long, Void, Long> {
+
+        private final String TAG = DeleteTask.class.getCanonicalName();
+
+        private ProgressDialog progressDialog;
+
+        private String errorMessage = null;
+
+        protected Long doInBackground(Long... params) {
+
+            Log.d(TAG, "doInBackground - starting");
+
+            try {
+
+                mSongbookService.deleteSongbook(params[0]);
+
+            } catch (IllegalArgumentException error) {
+                errorMessage = error.getMessage();
+            }
+
+            Log.d(TAG, "doInBackground - finished");
+
+            return params[0];
+        }
+
+        protected void onPostExecute(Long songBookId) {
+
+            loadSBList();
+
+            progressDialog.dismiss();
+
+            String message = null;
+
+            if (errorMessage != null) {
+
+                Log.e(TAG, errorMessage);
+
+                message = getString(R.string.managesb_task_delete_failure);
+
+            } else {
+                message = getString(R.string.managesb_task_delete_succcess);
+            }
+
+            // add ID to the delete list RESULT
+
+            resultIntent.putExtra(RESULT_COMMAND, CONTEXT_DELETE);
+
+            long[] deleteSet = resultIntent.getLongArrayExtra(RESULT_DELETELIST);
+
+            Set<Long> newSet = new HashSet<Long>();
+
+            if (deleteSet != null) {
+
+                for (long value : deleteSet) {
+                    newSet.add(value);
+                }
+
+            }
+
+            newSet.add(songBookId);
+
+            // Ugly way to Copy
+
+            deleteSet = new long[newSet.size()];
+
+            int i = 0;
+
+            for (Iterator<Long> iterator = newSet.iterator(); iterator.hasNext(); i++) {
+
+                deleteSet[i] = iterator.next();
+
+            }
+
+            resultIntent.putExtra(RESULT_DELETELIST, deleteSet);
+
+            // display message
+
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+            Log.d(TAG, "doInBackground - onPostExecute");
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            progressDialog = new ProgressDialog(SongbookManageActivity.this);
+            progressDialog.setMessage(getString(R.string.deleting_message));
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+        }
+    }
+
+    private class SetDefaultTask extends AsyncTask<Long, Void, Void> {
+
+        private final String TAG = SetDefaultTask.class.getCanonicalName();
+
+        private ProgressDialog progressDialog;
+
+        private String errorMessage = null;
+
+        protected Void doInBackground(Long... params) {
+
+            Log.d(TAG, "doInBackground - starting");
+
+            try {
+                mSongbookService.setAsDefault(params[0]);
+            } catch (IllegalArgumentException error) {
+                errorMessage = error.getMessage();
+            }
+
+            Log.d(TAG, "doInBackground - finished");
+
+            return null;
+        }
+
+        protected void onPostExecute(Void ignore) {
+
+            progressDialog.dismiss();
+
+            String message = null;
+
+            if (errorMessage != null) {
+
+                Log.e(TAG, errorMessage);
+
+                message = getString(R.string.managesb_task_setdefault_failure);
+
+            } else {
+                message = getString(R.string.managesb_task_setdefault_succcess);
+            }
+
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
+            Log.d(TAG, "doInBackground - onPostExecute");
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            progressDialog = new ProgressDialog(SongbookManageActivity.this);
+            progressDialog.setMessage(getString(R.string.processing_message));
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+        }
     }
 
 }

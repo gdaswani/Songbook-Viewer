@@ -36,7 +36,7 @@
             android:name=".SongbookAddActivity"
             android:excludeFromRecents="true"
             android:label="Import Songbook"
-            android:noHistory="false"
+            android:noHistory="true"
             android:theme="@android:style/Theme.Dialog"
             android:exported="true">
             <intent-filter>
