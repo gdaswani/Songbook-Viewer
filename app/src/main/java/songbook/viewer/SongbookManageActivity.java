@@ -1,6 +1,7 @@
 package songbook.viewer;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -23,552 +23,413 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.lamerman.FileDialog;
-import com.lamerman.SelectionMode;
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import songbook.viewer.data.SQLHelper;
-import songbook.viewer.intent.action.SELECT_SONGBOOK;
 import songbook.viewer.services.SongbookService;
 
 public class SongbookManageActivity extends Activity {
 
-	private class DeleteTask extends AsyncTask<Long, Void, Long> {
+    private class DeleteTask extends AsyncTask<Long, Void, Long> {
 
-		private final String TAG = DeleteTask.class.getCanonicalName();
+        private final String TAG = DeleteTask.class.getCanonicalName();
 
-		private ProgressDialog progressDialog;
+        private ProgressDialog progressDialog;
 
-		private String errorMessage = null;
+        private String errorMessage = null;
 
-		protected Long doInBackground(Long... params) {
+        protected Long doInBackground(Long... params) {
 
-			Log.d(TAG, "doInBackground - starting");
+            Log.d(TAG, "doInBackground - starting");
 
-			try {
+            try {
 
-				mSongbookService.deleteSongbook(params[0]);
+                mSongbookService.deleteSongbook(params[0]);
 
-			} catch (IllegalArgumentException error) {
-				errorMessage = error.getMessage();
-			}
+            } catch (IllegalArgumentException error) {
+                errorMessage = error.getMessage();
+            }
 
-			Log.d(TAG, "doInBackground - finished");
+            Log.d(TAG, "doInBackground - finished");
 
-			return params[0];
-		}
+            return params[0];
+        }
 
-		protected void onPostExecute(Long songBookId) {
+        protected void onPostExecute(Long songBookId) {
 
-			loadSBList();
+            loadSBList();
 
-			progressDialog.dismiss();
+            progressDialog.dismiss();
 
-			String message = null;
+            String message = null;
 
-			if (errorMessage != null) {
+            if (errorMessage != null) {
 
-				Log.e(TAG, errorMessage);
+                Log.e(TAG, errorMessage);
 
-				message = getString(R.string.managesb_task_delete_failure);
+                message = getString(R.string.managesb_task_delete_failure);
 
-			} else {
-				message = getString(R.string.managesb_task_delete_succcess);
-			}
+            } else {
+                message = getString(R.string.managesb_task_delete_succcess);
+            }
 
-			// add ID to the delete list RESULT
+            // add ID to the delete list RESULT
 
-			resultIntent.putExtra(RESULT_COMMAND, CONTEXT_DELETE);
+            resultIntent.putExtra(RESULT_COMMAND, CONTEXT_DELETE);
 
-			long[] deleteSet = resultIntent
-					.getLongArrayExtra(RESULT_DELETELIST);
+            long[] deleteSet = resultIntent
+                    .getLongArrayExtra(RESULT_DELETELIST);
 
-			Set<Long> newSet = new HashSet<Long>();
+            Set<Long> newSet = new HashSet<Long>();
 
-			if (deleteSet != null) {
+            if (deleteSet != null) {
 
-				for (long value : deleteSet) {
-					newSet.add(value);
-				}
+                for (long value : deleteSet) {
+                    newSet.add(value);
+                }
 
-			}
+            }
 
-			newSet.add(songBookId);
+            newSet.add(songBookId);
 
-			// Ugly way to Copy
+            // Ugly way to Copy
 
-			deleteSet = new long[newSet.size()];
+            deleteSet = new long[newSet.size()];
 
-			int i = 0;
+            int i = 0;
 
-			for (Iterator<Long> iterator = newSet.iterator(); iterator
-					.hasNext(); i++) {
+            for (Iterator<Long> iterator = newSet.iterator(); iterator
+                    .hasNext(); i++) {
 
-				deleteSet[i] = iterator.next();
+                deleteSet[i] = iterator.next();
 
-			}
+            }
 
-			resultIntent.putExtra(RESULT_DELETELIST, deleteSet);
+            resultIntent.putExtra(RESULT_DELETELIST, deleteSet);
 
-			// display message
+            // display message
 
-			Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
-					.show();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
+                    .show();
 
-			Log.d(TAG, "doInBackground - onPostExecute");
+            Log.d(TAG, "doInBackground - onPostExecute");
 
-		}
+        }
 
-		@Override
-		protected void onPreExecute() {
+        @Override
+        protected void onPreExecute() {
 
-			progressDialog = new ProgressDialog(SongbookManageActivity.this);
-			progressDialog.setMessage(getString(R.string.deleting_message));
-			progressDialog.setIndeterminate(true);
-			progressDialog.setCancelable(false);
-			progressDialog.show();
+            progressDialog = new ProgressDialog(SongbookManageActivity.this);
+            progressDialog.setMessage(getString(R.string.deleting_message));
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-		}
-	}
+        }
+    }
 
-	class ImportParameter {
 
-		private String filePath = null;
-		private String name = null;
-		private String description = null;
-		private boolean defaultFlag = false;
 
-		public String getDescription() {
-			return description;
-		}
 
-		public String getFilePath() {
-			return filePath;
-		}
+    private class SetDefaultTask extends AsyncTask<Long, Void, Void> {
 
-		public String getName() {
-			return name;
-		}
+        private final String TAG = SetDefaultTask.class.getCanonicalName();
 
-		public boolean isDefaultFlag() {
-			return defaultFlag;
-		}
+        private ProgressDialog progressDialog;
 
-		public ImportParameter setDefaultFlag(boolean defaultFlag) {
-			this.defaultFlag = defaultFlag;
-			return this;
-		}
+        private String errorMessage = null;
 
-		public ImportParameter setDescription(String description) {
-			this.description = description;
-			return this;
-		}
+        protected Void doInBackground(Long... params) {
 
-		public ImportParameter setFilePath(String filePath) {
-			this.filePath = filePath;
-			return this;
-		}
+            Log.d(TAG, "doInBackground - starting");
 
-		public ImportParameter setName(String name) {
-			this.name = name;
-			return this;
-		}
+            try {
+                mSongbookService.setAsDefault(params[0]);
+            } catch (IllegalArgumentException error) {
+                errorMessage = error.getMessage();
+            }
 
-	}
+            Log.d(TAG, "doInBackground - finished");
 
-	private class ImportTask extends AsyncTask<ImportParameter, Void, Void> {
+            return null;
+        }
 
-		private final String TAG = ImportTask.class.getCanonicalName();
+        protected void onPostExecute(Void ignore) {
 
-		private ProgressDialog progressDialog;
+            progressDialog.dismiss();
 
-		private String errorMessage = null;
+            String message = null;
 
-		protected Void doInBackground(ImportParameter... params) {
+            if (errorMessage != null) {
 
-			Log.d(TAG, "doInBackground - starting");
+                Log.e(TAG, errorMessage);
 
-			try {
+                message = getString(R.string.managesb_task_setdefault_failure);
 
-				mSongbookService.importSongbook(
-						new File(params[0].getFilePath()), params[0].getName(),
-						params[0].getDescription(), params[0].isDefaultFlag());
+            } else {
+                message = getString(R.string.managesb_task_setdefault_succcess);
+            }
 
-			} catch (IllegalArgumentException error) {
-				errorMessage = error.getMessage();
-			}
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
+                    .show();
 
-			Log.d(TAG, "doInBackground - finished");
+            Log.d(TAG, "doInBackground - onPostExecute");
 
-			return null;
-		}
+        }
 
-		protected void onPostExecute(Void ignore) {
+        @Override
+        protected void onPreExecute() {
 
-			loadSBList();
+            progressDialog = new ProgressDialog(SongbookManageActivity.this);
+            progressDialog.setMessage(getString(R.string.processing_message));
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
 
-			progressDialog.dismiss();
+        }
+    }
 
-			if (errorMessage != null) {
+    public final static int CONTEXT_DELETE = 1;
 
-				Log.e(TAG, errorMessage);
+    public final static int CONTEXT_SET_DEFAULT = 2;
 
-			}
+    public final static int CONTEXT_LOAD = 3;
 
-			viewFlipper = (ViewFlipper) findViewById(R.id.manageSBViewFlipper);
-			viewFlipper.showPrevious();
-			filePath = null;
+    public final static String RESULT_COMMAND = "resultCommand";
 
-			Log.d(TAG, "doInBackground - onPostExecute");
+    public final static String RESULT_DELETELIST = "resultDeleteList";
 
-		}
+    public final static String RESULT_LOADSBID = "resultLoadSBId";
 
-		@Override
-		protected void onPreExecute() {
+    private final String TAG = SongbookManageActivity.class.getCanonicalName();
 
-			progressDialog = new ProgressDialog(SongbookManageActivity.this);
-			progressDialog.setMessage(getString(R.string.importing_message));
-			progressDialog.setIndeterminate(true);
-			progressDialog.setCancelable(false);
-			progressDialog.show();
+    private ViewFlipper viewFlipper;
 
-		}
-	}
+    private String filePath;
 
-	private class SetDefaultTask extends AsyncTask<Long, Void, Void> {
+    private SongbookService mSongbookService;
 
-		private final String TAG = SetDefaultTask.class.getCanonicalName();
+    private ListView listView;
 
-		private ProgressDialog progressDialog;
+    private final Intent resultIntent = new Intent("");
 
-		private String errorMessage = null;
+    private ServiceConnection mConnection = new ServiceConnection() {
 
-		protected Void doInBackground(Long... params) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mSongbookService = ((SongbookService.SongbookBinder) service)
+                    .getService();
 
-			Log.d(TAG, "doInBackground - starting");
+            loadSBList();
 
-			try {
-				mSongbookService.setAsDefault(params[0]);
-			} catch (IllegalArgumentException error) {
-				errorMessage = error.getMessage();
-			}
+        }
 
-			Log.d(TAG, "doInBackground - finished");
+        public void onServiceDisconnected(ComponentName className) {
+            // never called
+        }
 
-			return null;
-		}
+    };
 
-		protected void onPostExecute(Void ignore) {
+    private void loadSBList() {
 
-			progressDialog.dismiss();
+        // Initialize ListView
 
-			String message = null;
+        SimpleCursorAdapter cursorAdapter = null;
 
-			if (errorMessage != null) {
+        if (listView.getAdapter() == null) {
 
-				Log.e(TAG, errorMessage);
+            cursorAdapter = new SimpleCursorAdapter(this,
+                    R.layout.songbook_list_item, null, new String[]{
+                    SQLHelper.tblSongbook_ID,
+                    SQLHelper.tblSongbook_NAME,
+                    SQLHelper.tblSongbook_DESC}, new int[]{
+                    R.id.sbListItem_id, R.id.sbListItem_name,
+                    R.id.sbListItem_desc}, 0);
 
-				message = getString(R.string.managesb_task_setdefault_failure);
+            listView.setAdapter(cursorAdapter);
 
-			} else {
-				message = getString(R.string.managesb_task_setdefault_succcess);
-			}
+        }
 
-			Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT)
-					.show();
+        cursorAdapter = (SimpleCursorAdapter) listView.getAdapter();
 
-			Log.d(TAG, "doInBackground - onPostExecute");
+        cursorAdapter
+                .changeCursor(mSongbookService.retrieveSongBooksByCursor());
 
-		}
+        cursorAdapter.notifyDataSetChanged();
 
-		@Override
-		protected void onPreExecute() {
+    }
 
-			progressDialog = new ProgressDialog(SongbookManageActivity.this);
-			progressDialog.setMessage(getString(R.string.processing_message));
-			progressDialog.setIndeterminate(true);
-			progressDialog.setCancelable(false);
-			progressDialog.show();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		}
-	}
+        Log.d(TAG, "onActivityResult");
 
-	public final static int CONTEXT_DELETE = 1;
+    }
 
-	public final static int CONTEXT_SET_DEFAULT = 2;
+    public boolean onContextItemSelected(MenuItem item) {
 
-	public final static int CONTEXT_LOAD = 3;
+        Log.d(TAG, "onContextItemSelected");
 
-	public final static String RESULT_COMMAND = "resultCommand";
+        AdapterView.AdapterContextMenuInfo menuInfo = null;
 
-	public final static String RESULT_DELETELIST = "resultDeleteList";
+        switch (item.getItemId()) {
 
-	public final static String RESULT_LOADSBID = "resultLoadSBId";
+            case CONTEXT_DELETE:
 
-	private final String TAG = SongbookManageActivity.class.getCanonicalName();
+                menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
-	private ViewFlipper viewFlipper;
+                Log.d(TAG, "list pos:" + menuInfo.position + " id:" + menuInfo.id);
 
-	private String filePath;
+                new DeleteTask().execute(menuInfo.id);
 
-	private SongbookService mSongbookService;
+                break;
 
-	private ListView listView;
+            case CONTEXT_SET_DEFAULT:
 
-	private final Intent resultIntent = new Intent("");
+                menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
-	private ServiceConnection mConnection = new ServiceConnection() {
+                Log.d(TAG, "list pos:" + menuInfo.position + " id:" + menuInfo.id);
 
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			mSongbookService = ((SongbookService.SongbookBinder) service)
-					.getService();
+                new SetDefaultTask().execute(menuInfo.id);
 
-			loadSBList();
+                break;
 
-		}
+            case CONTEXT_LOAD:
 
-		public void onServiceDisconnected(ComponentName className) {
-			// never called
-		}
+                menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
-	};
+                Log.d(TAG, "list pos:" + menuInfo.position + " id:" + menuInfo.id);
 
-	private void loadSBList() {
+                resultIntent.putExtra(RESULT_COMMAND, CONTEXT_LOAD);
+                resultIntent.putExtra(RESULT_LOADSBID, menuInfo.id);
 
-		// Initialize ListView
+                finish();
 
-		SimpleCursorAdapter cursorAdapter = null;
+                break;
 
-		if (listView.getAdapter() == null) {
+            default:
 
-			cursorAdapter = new SimpleCursorAdapter(this,
-					R.layout.songbook_list_item, null, new String[] {
-							SQLHelper.tblSongbook_ID,
-							SQLHelper.tblSongbook_NAME,
-							SQLHelper.tblSongbook_DESC }, new int[] {
-							R.id.sbListItem_id, R.id.sbListItem_name,
-							R.id.sbListItem_desc }, 0);
+                Log.d(TAG, "Default Context chosen");
 
-			listView.setAdapter(cursorAdapter);
+                return super.onContextItemSelected(item);
 
-		}
+        }
 
-		cursorAdapter = (SimpleCursorAdapter) listView.getAdapter();
+        return true;
 
-		cursorAdapter
-				.changeCursor(mSongbookService.retrieveSongBooksByCursor());
+    }
 
-		cursorAdapter.notifyDataSetChanged();
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-	}
+        super.onCreate(savedInstanceState);
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        setContentView(R.layout.manage_songbook);
 
-		Log.d(TAG, "onActivityResult");
+        viewFlipper = (ViewFlipper) findViewById(R.id.manageSBViewFlipper);
 
-		if (data != null) {
+        listView = (ListView) findViewById(R.id.listViewSongbooks);
 
-			filePath = data.getStringExtra(FileDialog.RESULT_PATH);
+        // Initialize Add Button
 
-		}
+        final Button addButton = (Button) findViewById(R.id.buttonAddSongbook);
 
-	}
+        addButton.setOnClickListener(new View.OnClickListener() {
 
-	public boolean onContextItemSelected(MenuItem item) {
+            public void onClick(View view) {
 
-		Log.d(TAG, "onContextItemSelected");
+                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
 
-		AdapterView.AdapterContextMenuInfo menuInfo = null;
+                startActivity(intent);
 
-		switch (item.getItemId()) {
+            }
+        });
 
-		case CONTEXT_DELETE:
+        // Initialize OK Button
 
-			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        final Button okButton = (Button) findViewById(R.id.buttonOKSongbook);
 
-			Log.d(TAG, "list pos:" + menuInfo.position + " id:" + menuInfo.id);
+        okButton.setOnClickListener(new View.OnClickListener() {
 
-			new DeleteTask().execute(menuInfo.id);
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
-			break;
+        // Initialize Cancel Button
 
-		case CONTEXT_SET_DEFAULT:
+        final Button cancelButton = (Button) findViewById(R.id.buttonCancelAddSongbook);
 
-			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        cancelButton.setOnClickListener(new View.OnClickListener() {
 
-			Log.d(TAG, "list pos:" + menuInfo.position + " id:" + menuInfo.id);
+            public void onClick(View view) {
+                viewFlipper.showPrevious();
+            }
+        });
 
-			new SetDefaultTask().execute(menuInfo.id);
+        // Initialize Choose Button
 
-			break;
+        final Button chooseButton = (Button) findViewById(R.id.buttonSelectFile);
 
-		case CONTEXT_LOAD:
+        chooseButton.setOnClickListener(new View.OnClickListener() {
 
-			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            public void onClick(View view) {
 
-			Log.d(TAG, "list pos:" + menuInfo.position + " id:" + menuInfo.id);
+                Log.d(TAG, "DownloadManager.ACTION_VIEW_DOWNLOADS");
 
-			resultIntent.putExtra(RESULT_COMMAND, CONTEXT_LOAD);
-			resultIntent.putExtra(RESULT_LOADSBID, menuInfo.id);
+                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
 
-			finish();
+                startActivity(intent);
 
-			break;
+            }
+        });
 
-		default:
+        filePath = null;
 
-			Log.d(TAG, "Default Context chosen");
+        registerForContextMenu(listView);
 
-			return super.onContextItemSelected(item);
+        bindService(new Intent(SongbookManageActivity.this,
+                SongbookService.class), mConnection, Context.BIND_AUTO_CREATE);
 
-		}
+        Log.d(TAG, "onCreate");
 
-		return true;
+    }
 
-	}
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenuInfo menuInfo) {
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-		super.onCreate(savedInstanceState);
+        menu.setHeaderTitle(R.string.managesb_cmenu_header);
+        menu.add(0, CONTEXT_DELETE, 0, R.string.managesb_cmenu_delete);
+        menu.add(0, CONTEXT_SET_DEFAULT, 0, R.string.managesb_cmenu_setdefault);
+        menu.add(0, CONTEXT_LOAD, 0, R.string.managesb_cmenu_load);
+    }
 
-		setContentView(R.layout.manage_songbook);
+    @Override
+    public void finish() {
 
-		viewFlipper = (ViewFlipper) findViewById(R.id.manageSBViewFlipper);
+        Log.d(TAG, "onFinish");
 
-		listView = (ListView) findViewById(R.id.listViewSongbooks);
+        setResult(Activity.RESULT_OK, resultIntent);
 
-		// Initialize Add Button
+        super.finish();
 
-		final Button addButton = (Button) findViewById(R.id.buttonAddSongbook);
+    }
 
-		addButton.setOnClickListener(new View.OnClickListener() {
+    @Override
+    protected void onDestroy() {
 
-			public void onClick(View view) {
-				viewFlipper.showNext();
-			}
-		});
+        Log.d(TAG, "onDestroy");
 
-		// Initialize OK Button
+        super.onDestroy();
 
-		final Button okButton = (Button) findViewById(R.id.buttonOKSongbook);
-
-		okButton.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View view) {
-				finish();
-			}
-		});
-
-		// Initialize Cancel Button
-
-		final Button cancelButton = (Button) findViewById(R.id.buttonCancelAddSongbook);
-
-		cancelButton.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View view) {
-				viewFlipper.showPrevious();
-			}
-		});
-
-		// Initialize Import Button
-
-		final Button importButton = (Button) findViewById(R.id.buttonImportSongbook);
-
-		importButton.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View view) {
-
-				String nameValue = ((EditText) findViewById(R.id.importNameText))
-						.getText().toString();
-
-				if (filePath != null && nameValue != null
-						&& nameValue.trim().length() > 0) {
-
-					new ImportTask()
-							.execute(new ImportParameter()
-									.setFilePath(filePath)
-									.setName(nameValue)
-									.setDescription(
-											((EditText) findViewById(R.id.importDescText))
-													.getText().toString()));
-				} else {
-					Toast.makeText(getApplicationContext(),
-							getString(R.string.managesb_import_required),
-							Toast.LENGTH_SHORT).show();
-				}
-			}
-
-		});
-
-		// Initialize Choose Button
-
-		final Button chooseButton = (Button) findViewById(R.id.buttonSelectFile);
-
-		chooseButton.setOnClickListener(new View.OnClickListener() {
-
-			public void onClick(View view) {
-
-				Intent intent = new SELECT_SONGBOOK();
-
-				intent.putExtra(FileDialog.START_PATH, Environment
-						.getExternalStorageDirectory().getAbsolutePath());
-
-				intent.putExtra(FileDialog.SELECTION_MODE,
-						SelectionMode.MODE_OPEN);
-
-				startActivityForResult(intent, 1);
-
-			}
-		});
-
-		filePath = null;
-
-		registerForContextMenu(listView);
-
-		bindService(new Intent(SongbookManageActivity.this,
-				SongbookService.class), mConnection, Context.BIND_AUTO_CREATE);
-
-		Log.d(TAG, "onCreate");
-
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-
-		super.onCreateContextMenu(menu, v, menuInfo);
-
-		menu.setHeaderTitle(R.string.managesb_cmenu_header);
-		menu.add(0, CONTEXT_DELETE, 0, R.string.managesb_cmenu_delete);
-		menu.add(0, CONTEXT_SET_DEFAULT, 0, R.string.managesb_cmenu_setdefault);
-		menu.add(0, CONTEXT_LOAD, 0, R.string.managesb_cmenu_load);
-	}
-
-	@Override
-	public void finish() {
-
-		Log.d(TAG, "onFinish");
-
-		setResult(Activity.RESULT_OK, resultIntent);
-
-		super.finish();
-
-	}
-
-	@Override
-	protected void onDestroy() {
-
-		Log.d(TAG, "onDestroy");
-
-		super.onDestroy();
-
-		unbindService(mConnection);
-	}
+        unbindService(mConnection);
+    }
 
 }

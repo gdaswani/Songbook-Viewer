@@ -36,13 +36,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.lamerman.FileDialog"
+            android:name=".SongbookAddActivity"
+            android:excludeFromRecents="true"
+            android:label="Import Songbook"
             android:noHistory="false"
-            android:exported="false">
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="true">
             <intent-filter>
-                <action android:name="songbook.viewer.intent.action.SELECT_SONGBOOK" />
-
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:mimeType="*/*" />
+                <data android:host="*"/>
             </intent-filter>
         </activity>
 

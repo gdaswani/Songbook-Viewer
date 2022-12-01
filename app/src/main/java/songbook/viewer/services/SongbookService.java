@@ -67,8 +67,6 @@ public class SongbookService extends Service {
 
 		Log.i(TAG, "Received start id " + startId + ": " + intent);
 
-		// We want this service to continue running until it is explicitly
-		// stopped, so return sticky.
 		return START_STICKY;
 	}
 
