@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 31
 
+    namespace 'songbook.viewer'
+
     defaultConfig {
         applicationId "songbook.viewer"
         minSdkVersion 21

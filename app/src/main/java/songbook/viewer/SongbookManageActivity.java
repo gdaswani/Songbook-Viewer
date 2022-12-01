@@ -17,13 +17,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -132,8 +131,6 @@ public class SongbookManageActivity extends Activity {
     }
 
 
-
-
     private class SetDefaultTask extends AsyncTask<Long, Void, Void> {
 
         private final String TAG = SetDefaultTask.class.getCanonicalName();
@@ -206,9 +203,7 @@ public class SongbookManageActivity extends Activity {
 
     private final String TAG = SongbookManageActivity.class.getCanonicalName();
 
-    private ViewFlipper viewFlipper;
-
-    private String filePath;
+    private RelativeLayout layout;
 
     private SongbookService mSongbookService;
 
@@ -330,7 +325,7 @@ public class SongbookManageActivity extends Activity {
 
         setContentView(R.layout.manage_songbook);
 
-        viewFlipper = (ViewFlipper) findViewById(R.id.manageSBViewFlipper);
+        layout = (RelativeLayout) findViewById(R.id.manageSBLayout);
 
         listView = (ListView) findViewById(R.id.listViewSongbooks);
 
@@ -360,35 +355,6 @@ public class SongbookManageActivity extends Activity {
             }
         });
 
-        // Initialize Cancel Button
-
-        final Button cancelButton = (Button) findViewById(R.id.buttonCancelAddSongbook);
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-                viewFlipper.showPrevious();
-            }
-        });
-
-        // Initialize Choose Button
-
-        final Button chooseButton = (Button) findViewById(R.id.buttonSelectFile);
-
-        chooseButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-
-                Log.d(TAG, "DownloadManager.ACTION_VIEW_DOWNLOADS");
-
-                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
-
-                startActivity(intent);
-
-            }
-        });
-
-        filePath = null;
 
         registerForContextMenu(listView);
 

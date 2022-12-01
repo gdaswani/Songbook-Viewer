@@ -9,8 +9,10 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.ListFragment;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;

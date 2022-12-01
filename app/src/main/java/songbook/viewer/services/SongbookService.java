@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -28,649 +29,613 @@ import songbook.viewer.data.Songbook;
 
 public class SongbookService extends Service {
 
-	public final static long PARAM_INVALID_SBID = Long.MIN_VALUE;
+    public final static long PARAM_INVALID_SBID = Long.MIN_VALUE;
 
-	private final static String TAG = SongbookService.class.getCanonicalName();
+    private final static String TAG = SongbookService.class.getCanonicalName();
 
-	private final IBinder mBinder = new SongbookBinder();
-	private SQLHelper sqlHelper;
+    private final IBinder mBinder = new SongbookBinder();
+    private SQLHelper sqlHelper;
 
-	private Locale locale = Locale.getDefault();
+    private Locale locale = Locale.getDefault();
 
-	public class SongbookBinder extends Binder {
-		public SongbookService getService() {
-			return SongbookService.this;
-		}
-	}
+    public class SongbookBinder extends Binder {
+        public SongbookService getService() {
+            return SongbookService.this;
+        }
+    }
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return mBinder;
-	}
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
 
-	@Override
-	public void onCreate() {
+    @Override
+    public void onCreate() {
 
-		sqlHelper = new SQLHelper(getApplicationContext());
+        sqlHelper = new SQLHelper(getApplicationContext());
 
-		Log.i(TAG, "onCreate");
+        Log.i(TAG, "onCreate");
 
-	}
+    }
 
-	@Override
-	public void onDestroy() {
-		Log.i(TAG, "onDestroy");
-	}
+    @Override
+    public void onDestroy() {
+        Log.i(TAG, "onDestroy");
+    }
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
-		Log.i(TAG, "Received start id " + startId + ": " + intent);
+        Log.i(TAG, "Received start id " + startId + ": " + intent);
 
-		return START_STICKY;
-	}
+        return START_STICKY;
+    }
 
-	public Cursor findSongsByKeyWord(long songBookId, String keyWord,
-			boolean byArtist) {
+    public Cursor findSongsByKeyWord(long songBookId, String keyWord,
+                                     boolean byArtist) {
 
-		if (keyWord != null && keyWord.trim().length() > 0) {
+        if (keyWord != null && keyWord.trim().length() > 0) {
 
-			String searchParameter = keyWord.toUpperCase(locale);
+            String searchParameter = keyWord.toUpperCase(locale);
 
-			SQLiteDatabase db = sqlHelper.getReadableDatabase();
+            SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-			String[] columns = { SQLHelper.tblSongs_ID,
-					SQLHelper.tblSongs_NUMCODE, SQLHelper.tblSongs_TITLE,
-					SQLHelper.tblSongs_ARTIST };
+            String[] columns = {SQLHelper.tblSongs_ID,
+                    SQLHelper.tblSongs_NUMCODE, SQLHelper.tblSongs_TITLE,
+                    SQLHelper.tblSongs_ARTIST};
 
-			String selection = MessageFormat.format("{0} = ? AND {1} LIKE ? ",
-					SQLHelper.tblSongs_SBID,
-					byArtist ? SQLHelper.tblSongs_ARTIST
-							: SQLHelper.tblSongs_TITLE);
+            String selection = MessageFormat.format("{0} = ? AND {1} LIKE ? ",
+                    SQLHelper.tblSongs_SBID,
+                    byArtist ? SQLHelper.tblSongs_ARTIST
+                            : SQLHelper.tblSongs_TITLE);
 
-			String orderBy = null;
+            String orderBy = null;
 
-			if (byArtist) {
-				orderBy = MessageFormat.format("{0} ASC, {1} ASC",
-						SQLHelper.tblSongs_ARTIST, SQLHelper.tblSongs_TITLE);
-			} else {
-				orderBy = MessageFormat.format("{0} ASC",
-						SQLHelper.tblSongs_TITLE);
-			}
+            if (byArtist) {
+                orderBy = MessageFormat.format("{0} ASC, {1} ASC",
+                        SQLHelper.tblSongs_ARTIST, SQLHelper.tblSongs_TITLE);
+            } else {
+                orderBy = MessageFormat.format("{0} ASC",
+                        SQLHelper.tblSongs_TITLE);
+            }
 
-			return db.query(
-					SQLHelper.tblSongs,
-					columns,
-					selection,
-					new String[] {
-							MessageFormat.format("{0,number,#}", songBookId),
-							"%" + searchParameter + "%" }, null, null, orderBy);
+            return db.query(
+                    SQLHelper.tblSongs,
+                    columns,
+                    selection,
+                    new String[]{
+                            MessageFormat.format("{0,number,#}", songBookId),
+                            "%" + searchParameter + "%"}, null, null, orderBy);
 
-		} else {
-			return null;
-		}
-	}
+        } else {
+            return null;
+        }
+    }
 
-	public Cursor findSongsByIndex(long songBookId, String index,
-			boolean byArtist) {
+    public Cursor findSongsByIndex(long songBookId, String index,
+                                   boolean byArtist) {
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-		String[] columns = { SQLHelper.tblSongs_ID, SQLHelper.tblSongs_NUMCODE,
-				SQLHelper.tblSongs_TITLE, SQLHelper.tblSongs_ARTIST };
+        String[] columns = {SQLHelper.tblSongs_ID, SQLHelper.tblSongs_NUMCODE,
+                SQLHelper.tblSongs_TITLE, SQLHelper.tblSongs_ARTIST};
 
-		String orderBy = null;
+        String orderBy = null;
 
-		if (byArtist) {
-			orderBy = MessageFormat.format("{0} ASC, {1} ASC",
-					SQLHelper.tblSongs_ARTIST, SQLHelper.tblSongs_TITLE);
-		} else {
-			orderBy = MessageFormat.format("{0} ASC", SQLHelper.tblSongs_TITLE);
-		}
+        if (byArtist) {
+            orderBy = MessageFormat.format("{0} ASC, {1} ASC",
+                    SQLHelper.tblSongs_ARTIST, SQLHelper.tblSongs_TITLE);
+        } else {
+            orderBy = MessageFormat.format("{0} ASC", SQLHelper.tblSongs_TITLE);
+        }
 
-		if (index != null && index.trim().length() > 0) {
+        if (index != null && index.trim().length() > 0) {
 
-			String selection = MessageFormat.format("{0} = ? AND {1} LIKE ? ",
-					SQLHelper.tblSongs_SBID,
-					byArtist ? SQLHelper.tblSongs_ARTIST
-							: SQLHelper.tblSongs_TITLE);
+            String selection = MessageFormat.format("{0} = ? AND {1} LIKE ? ",
+                    SQLHelper.tblSongs_SBID,
+                    byArtist ? SQLHelper.tblSongs_ARTIST
+                            : SQLHelper.tblSongs_TITLE);
 
-			Log.i(TAG, selection);
+            Log.i(TAG, selection);
 
-			return db.query(
-					SQLHelper.tblSongs,
-					columns,
-					selection,
-					new String[] {
-							MessageFormat.format("{0,number,#}", songBookId),
-							index + "%" }, null, null, orderBy);
+            return db.query(
+                    SQLHelper.tblSongs,
+                    columns,
+                    selection,
+                    new String[]{
+                            MessageFormat.format("{0,number,#}", songBookId),
+                            index + "%"}, null, null, orderBy);
 
-		} else {
+        } else {
 
-			String selection = MessageFormat.format(
-					"{0} = ? AND length({1}) = 0", SQLHelper.tblSongs_SBID,
-					byArtist ? SQLHelper.tblSongs_ARTIST
-							: SQLHelper.tblSongs_TITLE);
+            String selection = MessageFormat.format(
+                    "{0} = ? AND length({1}) = 0", SQLHelper.tblSongs_SBID,
+                    byArtist ? SQLHelper.tblSongs_ARTIST
+                            : SQLHelper.tblSongs_TITLE);
 
-			Log.i(TAG, selection);
+            Log.i(TAG, selection);
 
-			return db.query(SQLHelper.tblSongs, columns, selection,
-					new String[] { MessageFormat.format("{0,number,#}",
-							songBookId) }, null, null, orderBy);
-		}
+            return db.query(SQLHelper.tblSongs, columns, selection,
+                    new String[]{MessageFormat.format("{0,number,#}",
+                            songBookId)}, null, null, orderBy);
+        }
 
-	}
+    }
 
-	public String[] retrieveIndeces(long songBookId, boolean byArtist) {
+    public String[] retrieveIndeces(long songBookId, boolean byArtist) {
 
-		Set<String> indeces = new TreeSet<String>();
+        Set<String> indeces = new TreeSet<String>();
 
-		if (songBookId == PARAM_INVALID_SBID) {
-			throw new IllegalArgumentException();
-		}
+        if (songBookId == PARAM_INVALID_SBID) {
+            throw new IllegalArgumentException();
+        }
 
-		Cursor cursor = null;
+        Cursor cursor = null;
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-		try {
+        try {
 
-			cursor = db
-					.rawQuery(
-							MessageFormat
-									.format("SELECT DISTINCT substr({0},1,1) FROM {1} WHERE {2} = {3,number,#}",
-											byArtist ? SQLHelper.tblSongs_ARTIST
-													: SQLHelper.tblSongs_TITLE,
-											SQLHelper.tblSongs,
-											SQLHelper.tblSongs_SBID, songBookId),
-							null);
+            cursor = db
+                    .rawQuery(
+                            MessageFormat
+                                    .format("SELECT DISTINCT substr({0},1,1) FROM {1} WHERE {2} = {3,number,#}",
+                                            byArtist ? SQLHelper.tblSongs_ARTIST
+                                                    : SQLHelper.tblSongs_TITLE,
+                                            SQLHelper.tblSongs,
+                                            SQLHelper.tblSongs_SBID, songBookId),
+                            null);
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false; cursor
-					.moveToNext()) {
-				indeces.add(cursor.getString(0));
-			}
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; cursor
+                    .moveToNext()) {
+                indeces.add(cursor.getString(0));
+            }
 
-		} finally {
+        } finally {
 
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-		return indeces.toArray(new String[0]);
-	}
+        return indeces.toArray(new String[0]);
+    }
 
-	public boolean deleteSongbook(long songBookId) {
+    public boolean deleteSongbook(long songBookId) {
 
-		boolean isSuccess = false;
+        boolean isSuccess = false;
 
-		Log.i(TAG, "deleteSongbook id = " + songBookId);
+        Log.i(TAG, "deleteSongbook id = " + songBookId);
 
-		if (songBookId == PARAM_INVALID_SBID) {
-			throw new IllegalArgumentException();
-		}
+        if (songBookId == PARAM_INVALID_SBID) {
+            throw new IllegalArgumentException();
+        }
 
-		SQLiteDatabase db = sqlHelper.getWritableDatabase();
+        SQLiteDatabase db = sqlHelper.getWritableDatabase();
 
-		try {
+        try {
 
-			db.beginTransaction();
+            db.beginTransaction();
 
-			db.delete(SQLHelper.tblSongs, MessageFormat.format("{0}=?",
-					SQLHelper.tblSongs_SBID), new String[] { MessageFormat
-					.format("{0,number,#}", songBookId) });
+            db.delete(SQLHelper.tblSongs, MessageFormat.format("{0}=?",
+                    SQLHelper.tblSongs_SBID), new String[]{MessageFormat
+                    .format("{0,number,#}", songBookId)});
 
-			db.delete(SQLHelper.tblSongbook, MessageFormat.format("{0}=?",
-					SQLHelper.tblSongbook_ID), new String[] { MessageFormat
-					.format("{0,number,#}", songBookId) });
+            db.delete(SQLHelper.tblSongbook, MessageFormat.format("{0}=?",
+                    SQLHelper.tblSongbook_ID), new String[]{MessageFormat
+                    .format("{0,number,#}", songBookId)});
 
-			db.setTransactionSuccessful();
+            db.setTransactionSuccessful();
 
-			isSuccess = true;
-		} finally {
-			db.endTransaction();
-		}
+            isSuccess = true;
+        } finally {
+            db.endTransaction();
+        }
 
-		return isSuccess;
-	}
+        return isSuccess;
+    }
 
-	public Songbook retrieveSongbookById(long id, boolean populateSongs) {
+    public Songbook retrieveSongbookById(long id, boolean populateSongs) {
 
-		Songbook songBook = null;
+        Songbook songBook = null;
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
-		Cursor cursor = null;
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
+        Cursor cursor = null;
 
-		try {
-			String[] columns = { SQLHelper.tblSongbook_ID,
-					SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
-					SQLHelper.tblSongbook_DEFAULTFLAG };
+        try {
+            String[] columns = {SQLHelper.tblSongbook_ID,
+                    SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
+                    SQLHelper.tblSongbook_DEFAULTFLAG};
 
-			cursor = db.query(SQLHelper.tblSongbook, columns, MessageFormat
-					.format("{0}={1,number,#}", SQLHelper.tblSongbook_ID, id),
-					null, null, null, null);
+            cursor = db.query(SQLHelper.tblSongbook, columns, MessageFormat
+                            .format("{0}={1,number,#}", SQLHelper.tblSongbook_ID, id),
+                    null, null, null, null);
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false;) {
-				songBook = new Songbook(cursor.getLong(0), cursor.getString(1),
-						cursor.getString(2), cursor.getInt(3) == 1 ? true
-								: false);
-				break;
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; ) {
+                songBook = new Songbook(cursor.getLong(0), cursor.getString(1),
+                        cursor.getString(2), cursor.getInt(3) == 1 ? true
+                        : false);
+                break;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-		if (songBook != null && populateSongs) {
-			populateSongs(songBook);
-		}
+        if (songBook != null && populateSongs) {
+            populateSongs(songBook);
+        }
 
-		Log.i(TAG, "retrieveSongbookById");
+        Log.i(TAG, "retrieveSongbookById");
 
-		return songBook;
-	}
+        return songBook;
+    }
 
-	public boolean setAsDefault(long songBookId) {
+    public boolean setAsDefault(long songBookId) {
 
-		boolean isSuccess = false;
+        boolean isSuccess = false;
 
-		Log.i(TAG, "setAsDefault id = " + songBookId);
+        Log.i(TAG, "setAsDefault id = " + songBookId);
 
-		if (songBookId == PARAM_INVALID_SBID) {
-			throw new IllegalArgumentException();
-		}
+        if (songBookId == PARAM_INVALID_SBID) {
+            throw new IllegalArgumentException();
+        }
 
-		SQLiteDatabase db = sqlHelper.getWritableDatabase();
+        SQLiteDatabase db = sqlHelper.getWritableDatabase();
 
-		try {
+        try {
 
-			db.beginTransaction();
+            db.beginTransaction();
 
-			ContentValues args = new ContentValues();
+            ContentValues args = new ContentValues();
 
-			args.put(SQLHelper.tblSongbook_DEFAULTFLAG, 0);
+            args.put(SQLHelper.tblSongbook_DEFAULTFLAG, 0);
 
-			db.update(SQLHelper.tblSongbook, args, MessageFormat.format(
-					"{0}=1", SQLHelper.tblSongbook_DEFAULTFLAG), null);
+            db.update(SQLHelper.tblSongbook, args, MessageFormat.format(
+                    "{0}=1", SQLHelper.tblSongbook_DEFAULTFLAG), null);
 
-			args.clear();
+            args.clear();
 
-			args.put(SQLHelper.tblSongbook_DEFAULTFLAG, 1);
+            args.put(SQLHelper.tblSongbook_DEFAULTFLAG, 1);
 
-			db.update(SQLHelper.tblSongbook, args, MessageFormat.format(
-					"{0}={1,number,#}", SQLHelper.tblSongbook_ID, songBookId),
-					null);
+            db.update(SQLHelper.tblSongbook, args, MessageFormat.format(
+                            "{0}={1,number,#}", SQLHelper.tblSongbook_ID, songBookId),
+                    null);
 
-			db.setTransactionSuccessful();
+            db.setTransactionSuccessful();
 
-			isSuccess = true;
-		} finally {
-			db.endTransaction();
-		}
+            isSuccess = true;
+        } finally {
+            db.endTransaction();
+        }
 
-		return isSuccess;
-	}
+        return isSuccess;
+    }
 
-	public boolean importSongbook(File juke, String name, String desc,
-			boolean defaultFlag) {
+    public boolean importSongbook(InputStream input, String name, String desc,
+                                  boolean defaultFlag) {
 
-		Log.i(TAG, "importSongbook");
+        Log.i(TAG, "importSongbook");
 
-		if (juke == null) {
-			throw new IllegalArgumentException("Invalid file");
-		}
+        if (input == null) {
+            throw new IllegalArgumentException("Invalid input");
+        }
 
-		if (name == null || name.trim().length() == 0) {
-			throw new IllegalArgumentException("Invalid name");
-		}
+        if (name == null || name.trim().length() == 0) {
+            throw new IllegalArgumentException("Invalid name");
+        }
 
-		if (existSongbookByName(name) == true) {
-			throw new IllegalArgumentException(
-					"Songbook with that name already exists");
-		}
+        if (existSongbookByName(name) == true) {
+            throw new IllegalArgumentException(
+                    "Songbook with that name already exists");
+        }
 
-		Log.i(TAG, "File: " + juke.getAbsolutePath());
+        Log.i(TAG, "Input: " + input);
 
-		boolean returnValue = false;
+        BufferedReader bReader = null;
 
-		try {
+        Songbook songBook = new Songbook(0L, name, desc, defaultFlag);
 
-			InputStream input = new FileInputStream(juke);
+        SQLiteDatabase db = sqlHelper.getWritableDatabase();
 
-			returnValue = importSongbook(input, name, desc, defaultFlag);
+        try {
 
-		} catch (IOException e) {
+            bReader = new BufferedReader(new InputStreamReader(input));
 
-		}
+            String strLine = null;
 
-		return returnValue;
+            while ((strLine = bReader.readLine()) != null) {
 
-	}
+                if (strLine.trim().length() > 0) {
 
-	public boolean importSongbook(InputStream input, String name, String desc,
-			boolean defaultFlag) {
+                    String[] data = strLine.split("\\|");
 
-		Log.i(TAG, "importSongbook");
+                    if (data.length >= 2 && data.length <= 3) {
+                        songBook.addSong(new Song(0L, 0L, data[1].trim(),
+                                data.length == 3 ? data[2].trim() : "", Integer
+                                .parseInt(data[0])));
+                    } else {
+                        throw new IllegalArgumentException("Invalid content");
+                    }
 
-		if (input == null) {
-			throw new IllegalArgumentException("Invalid input");
-		}
+                }
+            }
 
-		if (name == null || name.trim().length() == 0) {
-			throw new IllegalArgumentException("Invalid name");
-		}
+            if (false == songBook.getSongs().isEmpty()) {
 
-		if (existSongbookByName(name) == true) {
-			throw new IllegalArgumentException(
-					"Songbook with that name already exists");
-		}
+                db.beginTransaction();
 
-		Log.i(TAG, "Input: " + input);
+                try {
 
-		BufferedReader bReader = null;
+                    ContentValues cv = new ContentValues();
+                    cv.put(SQLHelper.tblSongbook_NAME, songBook.getName());
+                    cv.put(SQLHelper.tblSongbook_DESC,
+                            songBook.getDescription());
+                    cv.put(SQLHelper.tblSongbook_DEFAULTFLAG,
+                            songBook.isDefaultFlag() ? 1 : 0);
 
-		Songbook songBook = new Songbook(0L, name, desc, defaultFlag);
+                    songBook.setId(db.insert(SQLHelper.tblSongbook, null, cv));
 
-		SQLiteDatabase db = sqlHelper.getWritableDatabase();
+                    for (Song song : songBook.getSongs()) {
 
-		try {
+                        cv = new ContentValues();
+                        cv.put(SQLHelper.tblSongs_SBID, songBook.getId());
+                        cv.put(SQLHelper.tblSongs_ARTIST, song.getArtist());
+                        cv.put(SQLHelper.tblSongs_TITLE, song.getTitle());
+                        cv.put(SQLHelper.tblSongs_NUMCODE, song.getNumCode());
 
-			bReader = new BufferedReader(new InputStreamReader(input));
+                        db.insert(SQLHelper.tblSongs, null, cv);
 
-			String strLine = null;
+                    }
 
-			while ((strLine = bReader.readLine()) != null) {
+                    db.setTransactionSuccessful();
 
-				if (strLine.trim().length() > 0) {
+                } catch (Exception error) {
+                    throw new IllegalStateException(error);
+                } finally {
+                    db.endTransaction();
+                }
 
-					String[] data = strLine.split("\\|");
+            }
 
-					if (data.length >= 2 && data.length <= 3) {
-						songBook.addSong(new Song(0L, 0L, data[1].trim(),
-								data.length == 3 ? data[2].trim() : "", Integer
-										.parseInt(data[0])));
-					} else {
-						throw new IllegalArgumentException("Invalid content");
-					}
+        } catch (IOException error) {
+            throw new IllegalStateException(error);
+        } finally {
 
-				}
-			}
+            if (bReader != null) {
+                try {
+                    bReader.close();
+                } catch (IOException error) {
+                    throw new IllegalStateException(error);
+                }
+            }
 
-			if (false == songBook.getSongs().isEmpty()) {
+            if (db != null) {
+                db.close();
+            }
 
-				db.beginTransaction();
+        }
 
-				try {
+        return false;
+    }
 
-					ContentValues cv = new ContentValues();
-					cv.put(SQLHelper.tblSongbook_NAME, songBook.getName());
-					cv.put(SQLHelper.tblSongbook_DESC,
-							songBook.getDescription());
-					cv.put(SQLHelper.tblSongbook_DEFAULTFLAG,
-							songBook.isDefaultFlag() ? 1 : 0);
+    public boolean existSongbookDefault() {
 
-					songBook.setId(db.insert(SQLHelper.tblSongbook, null, cv));
+        boolean exists = false;
 
-					for (Song song : songBook.getSongs()) {
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-						cv = new ContentValues();
-						cv.put(SQLHelper.tblSongs_SBID, songBook.getId());
-						cv.put(SQLHelper.tblSongs_ARTIST, song.getArtist());
-						cv.put(SQLHelper.tblSongs_TITLE, song.getTitle());
-						cv.put(SQLHelper.tblSongs_NUMCODE, song.getNumCode());
+        Cursor cursor = null;
 
-						db.insert(SQLHelper.tblSongs, null, cv);
+        try {
 
-					}
+            String[] columns = {SQLHelper.tblSongbook_ID,
+                    SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
+                    SQLHelper.tblSongbook_DEFAULTFLAG};
 
-					db.setTransactionSuccessful();
+            String whereClause = MessageFormat.format("{0} = 1",
+                    SQLHelper.tblSongbook_DEFAULTFLAG);
 
-				} catch (Exception error) {
-					throw new IllegalStateException(error);
-				} finally {
-					db.endTransaction();
-				}
+            cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
+                    null, null, null, null);
 
-			}
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; ) {
+                exists = true;
+            }
 
-		} catch (IOException error) {
-			throw new IllegalStateException(error);
-		} finally {
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-			if (bReader != null) {
-				try {
-					bReader.close();
-				} catch (IOException error) {
-					throw new IllegalStateException(error);
-				}
-			}
+        return exists;
+    }
 
-			if (db != null) {
-				db.close();
-			}
+    public boolean existSongbookByName(String name) {
 
-		}
+        boolean exists = false;
 
-		return false;
-	}
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-	public boolean existSongbookDefault() {
+        Cursor cursor = null;
 
-		boolean exists = false;
+        try {
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
+            String[] columns = {SQLHelper.tblSongbook_ID};
 
-		Cursor cursor = null;
+            String whereClause = MessageFormat.format("{0}=?'",
+                    SQLHelper.tblSongbook_NAME);
 
-		try {
+            Log.i(TAG, whereClause);
 
-			String[] columns = { SQLHelper.tblSongbook_ID,
-					SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
-					SQLHelper.tblSongbook_DEFAULTFLAG };
+            cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
+                    new String[]{name.trim().toUpperCase(locale)}, null,
+                    null, null);
 
-			String whereClause = MessageFormat.format("{0} = 1",
-					SQLHelper.tblSongbook_DEFAULTFLAG);
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; ) {
+                exists = true;
+                break;
+            }
 
-			cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
-					null, null, null, null);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false;) {
-				exists = true;
-			}
+        return exists;
+    }
 
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+    public void populateSongs(Songbook songBook) {
 
-		return exists;
-	}
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
+        Cursor cursor = null;
 
-	public boolean existSongbookByName(String name) {
+        try {
 
-		boolean exists = false;
+            String[] columns = {SQLHelper.tblSongs_ID,
+                    SQLHelper.tblSongs_SBID, SQLHelper.tblSongs_TITLE,
+                    SQLHelper.tblSongs_ARTIST, SQLHelper.tblSongs_NUMCODE};
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
+            cursor = db.query(SQLHelper.tblSongs, columns, MessageFormat
+                    .format("{0} = {1,number,#}", SQLHelper.tblSongs_SBID,
+                            songBook.getId()), null, null, null, null);
 
-		Cursor cursor = null;
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; cursor
+                    .moveToNext()) {
+                songBook.addSong(new Song(cursor.getLong(0), cursor.getLong(1),
+                        cursor.getString(2), cursor.getString(3), cursor
+                        .getInt(4)));
+            }
 
-		try {
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-			String[] columns = { SQLHelper.tblSongbook_ID };
+        Log.i(TAG, "populateSongs");
+    }
 
-			String whereClause = MessageFormat.format("{0}=?'",
-					SQLHelper.tblSongbook_NAME);
+    public long retrieveDefaultSongbookId() {
 
-			Log.i(TAG, whereClause);
+        long songBookId = PARAM_INVALID_SBID;
 
-			cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
-					new String[] { name.trim().toUpperCase(locale) }, null,
-					null, null);
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false;) {
-				exists = true;
-				break;
-			}
+        Cursor cursor = null;
 
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+        try {
+            String[] columns = {SQLHelper.tblSongbook_ID};
 
-		return exists;
-	}
+            String whereClause = MessageFormat.format("{0} = 1",
+                    SQLHelper.tblSongbook_DEFAULTFLAG);
 
-	public void populateSongs(Songbook songBook) {
+            cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
+                    null, null, null, null);
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
-		Cursor cursor = null;
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; ) {
+                songBookId = cursor.getLong(0);
+                break;
+            }
 
-		try {
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-			String[] columns = { SQLHelper.tblSongs_ID,
-					SQLHelper.tblSongs_SBID, SQLHelper.tblSongs_TITLE,
-					SQLHelper.tblSongs_ARTIST, SQLHelper.tblSongs_NUMCODE };
+        return songBookId;
 
-			cursor = db.query(SQLHelper.tblSongs, columns, MessageFormat
-					.format("{0} = {1,number,#}", SQLHelper.tblSongs_SBID,
-							songBook.getId()), null, null, null, null);
+    }
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false; cursor
-					.moveToNext()) {
-				songBook.addSong(new Song(cursor.getLong(0), cursor.getLong(1),
-						cursor.getString(2), cursor.getString(3), cursor
-								.getInt(4)));
-			}
+    public Songbook retrieveDefaultSongbook() {
 
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+        Songbook songBook = null;
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
+        Cursor cursor = null;
 
-		Log.i(TAG, "populateSongs");
-	}
+        try {
 
-	public long retrieveDefaultSongbookId() {
+            String[] columns = {SQLHelper.tblSongbook_ID,
+                    SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
+                    SQLHelper.tblSongbook_DEFAULTFLAG};
 
-		long songBookId = PARAM_INVALID_SBID;
+            String whereClause = MessageFormat.format("{0} = 1",
+                    SQLHelper.tblSongbook_DEFAULTFLAG);
 
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
+            cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
+                    null, null, null, null);
 
-		Cursor cursor = null;
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; ) {
+                songBook = new Songbook(cursor.getLong(0), cursor.getString(1),
+                        cursor.getString(2), cursor.getInt(3) == 1 ? true
+                        : false);
+                break;
+            }
 
-		try {
-			String[] columns = { SQLHelper.tblSongbook_ID };
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-			String whereClause = MessageFormat.format("{0} = 1",
-					SQLHelper.tblSongbook_DEFAULTFLAG);
+        if (songBook != null) {
+            populateSongs(songBook);
+        }
 
-			cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
-					null, null, null, null);
+        return songBook;
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false;) {
-				songBookId = cursor.getLong(0);
-				break;
-			}
+    }
 
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+    public Cursor retrieveSongBooksByCursor() {
 
-		return songBookId;
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
 
-	}
+        String[] columns = {SQLHelper.tblSongbook_ID,
+                SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
+                SQLHelper.tblSongbook_DEFAULTFLAG};
 
-	public Songbook retrieveDefaultSongbook() {
+        return db.query(SQLHelper.tblSongbook, columns, null, null, null, null,
+                null);
 
-		Songbook songBook = null;
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
-		Cursor cursor = null;
+    }
 
-		try {
+    public List<Songbook> retrieveSongbooks() {
 
-			String[] columns = { SQLHelper.tblSongbook_ID,
-					SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
-					SQLHelper.tblSongbook_DEFAULTFLAG };
+        List<Songbook> songBooks = new ArrayList<Songbook>();
 
-			String whereClause = MessageFormat.format("{0} = 1",
-					SQLHelper.tblSongbook_DEFAULTFLAG);
+        SQLiteDatabase db = sqlHelper.getReadableDatabase();
+        Cursor cursor = null;
 
-			cursor = db.query(SQLHelper.tblSongbook, columns, whereClause,
-					null, null, null, null);
+        try {
+            String[] columns = {SQLHelper.tblSongbook_ID,
+                    SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
+                    SQLHelper.tblSongbook_DEFAULTFLAG};
 
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false;) {
-				songBook = new Songbook(cursor.getLong(0), cursor.getString(1),
-						cursor.getString(2), cursor.getInt(3) == 1 ? true
-								: false);
-				break;
-			}
+            cursor = db.query(SQLHelper.tblSongbook, columns, null, null, null,
+                    null, null);
 
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+            for (cursor.moveToFirst(); cursor.isAfterLast() == false; cursor
+                    .moveToNext()) {
+                songBooks.add(new Songbook(cursor.getLong(0), cursor
+                        .getString(1), cursor.getString(2),
+                        cursor.getInt(3) == 1 ? true : false));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
 
-		if (songBook != null) {
-			populateSongs(songBook);
-		}
+        for (Songbook sb : songBooks) {
+            populateSongs(sb);
+        }
 
-		return songBook;
+        Log.i(TAG, "retrieveSongbooks");
 
-	}
-
-	public Cursor retrieveSongBooksByCursor() {
-
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
-
-		String[] columns = { SQLHelper.tblSongbook_ID,
-				SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
-				SQLHelper.tblSongbook_DEFAULTFLAG };
-
-		return db.query(SQLHelper.tblSongbook, columns, null, null, null, null,
-				null);
-
-	}
-
-	public List<Songbook> retrieveSongbooks() {
-
-		List<Songbook> songBooks = new ArrayList<Songbook>();
-
-		SQLiteDatabase db = sqlHelper.getReadableDatabase();
-		Cursor cursor = null;
-
-		try {
-			String[] columns = { SQLHelper.tblSongbook_ID,
-					SQLHelper.tblSongbook_NAME, SQLHelper.tblSongbook_DESC,
-					SQLHelper.tblSongbook_DEFAULTFLAG };
-
-			cursor = db.query(SQLHelper.tblSongbook, columns, null, null, null,
-					null, null);
-
-			for (cursor.moveToFirst(); cursor.isAfterLast() == false; cursor
-					.moveToNext()) {
-				songBooks.add(new Songbook(cursor.getLong(0), cursor
-						.getString(1), cursor.getString(2),
-						cursor.getInt(3) == 1 ? true : false));
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-
-		for (Songbook sb : songBooks) {
-			populateSongs(sb);
-		}
-
-		Log.i(TAG, "retrieveSongbooks");
-
-		return songBooks;
-	}
+        return songBooks;
+    }
 }

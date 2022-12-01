@@ -50,6 +50,8 @@
     <string name="create">Save</string>
     <string name="no_data">No Data</string>
     <string name="row_image">Row Image</string>
+    <string name="addsb_task_import_failure">Import failed</string>
+    <string name="addsb_task_import_success">Import successful</string>
 
     <color name="gray">#ffff0000</color>
 
