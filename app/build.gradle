@@ -9,8 +9,8 @@ android {
         applicationId "songbook.viewer"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 20220413
-        versionName "REL20220413"
+        versionCode 20221201
+        versionName "REL20221201"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

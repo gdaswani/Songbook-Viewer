@@ -8627,3 +8627,33 @@
 08627|All Too Well|Taylor Swift
 08628|Sacrifice|Weeknd
 08629|My Hero|Westlife
+08630|Shut Off The Lights|Bastille
+08631|Run|Becky Hill
+08632|Never Gonna Rain|Bryan Adams
+08633|Bam Bam|Camilla Cabello
+08634|Beg For You|Charli XCX
+08635|Light Switch|Charlie Puth
+08636|Boyfriend|Dove Cameron
+08637|Anyone For You|George Ezra
+08638|Green Green Grass|George Ezra
+08639|As It Was|Harry Styles
+08640|Where Did You Go|Jax Jonas
+08641|Everything's Electric|Liam Gallagher
+08642|About Damn Time|Lizzo
+08643|House On Fire|Mimi Webb
+08644|Space Man|Sam Ryder
+08645|Colour Me Blue|Alfie Templeman
+08646|Maybe Youre The Problem|Ava Max
+08647|Potion|Calvin Harris
+08648|Go|Cat Burns
+08649|Crazy What Love Can Do|David Guetta
+08650|Dont Forget My Love|Diplo
+08651|2Step|Ed Sheeran
+08652|Last Night Talking|Harry Styles
+08653|Better Together|Jeremy Loops
+08654|Hold My Hand|Lady Gaga
+08655|I Aint Worried|One Republic
+08656|Safe In Your Love|Rossie McClelland
+08657|When Youre Gone|Shawn Mendes
+08658|It Gets Dark|Sigrid
+08659|Remind Me|Tom Greenan
