@@ -17,9 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
@@ -40,10 +38,9 @@ public class SongbookManageActivity extends Activity {
     public final static String RESULT_LOADSBID = "resultLoadSBId";
     private final String TAG = SongbookManageActivity.class.getCanonicalName();
     private final Intent resultIntent = new Intent("");
-    private RelativeLayout layout;
     private SongbookService mSongbookService;
     private ListView listView;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className, IBinder service) {
             mSongbookService = ((SongbookService.SongbookBinder) service).getService();
@@ -62,7 +59,7 @@ public class SongbookManageActivity extends Activity {
 
         // Initialize ListView
 
-        SimpleCursorAdapter cursorAdapter = null;
+        SimpleCursorAdapter cursorAdapter;
 
         if (listView.getAdapter() == null) {
 
@@ -96,7 +93,7 @@ public class SongbookManageActivity extends Activity {
 
         Log.d(TAG, "onContextItemSelected");
 
-        AdapterView.AdapterContextMenuInfo menuInfo = null;
+        AdapterView.AdapterContextMenuInfo menuInfo;
 
         switch (item.getItemId()) {
 
@@ -155,34 +152,30 @@ public class SongbookManageActivity extends Activity {
 
         setContentView(R.layout.manage_songbook);
 
-        layout = (RelativeLayout) findViewById(R.id.manageSBLayout);
+        // RelativeLayout layout = findViewById(R.id.manageSBLayout);
 
-        listView = (ListView) findViewById(R.id.listViewSongbooks);
+        listView = findViewById(R.id.listViewSongbooks);
 
         // Initialize Add Button
 
-        final Button addButton = (Button) findViewById(R.id.buttonAddSongbook);
+        final Button addButton = findViewById(R.id.buttonAddSongbook);
 
-        addButton.setOnClickListener(new View.OnClickListener() {
+        addButton.setOnClickListener((View v) -> {
 
-            public void onClick(View view) {
+            Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
 
-                Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+            startActivityForResult(intent, 1);
 
-                startActivityForResult(intent, 1);
-
-            }
         });
 
         // Initialize OK Button
 
-        final Button okButton = (Button) findViewById(R.id.buttonOKSongbook);
+        final Button okButton = findViewById(R.id.buttonOKSongbook);
 
-        okButton.setOnClickListener(new View.OnClickListener() {
+        okButton.setOnClickListener((View v) -> {
 
-            public void onClick(View view) {
-                finish();
-            }
+            finish();
+
         });
 
 
@@ -257,7 +250,7 @@ public class SongbookManageActivity extends Activity {
 
             progressDialog.dismiss();
 
-            String message = null;
+            String message;
 
             if (errorMessage != null) {
 
@@ -275,7 +268,7 @@ public class SongbookManageActivity extends Activity {
 
             long[] deleteSet = resultIntent.getLongArrayExtra(RESULT_DELETELIST);
 
-            Set<Long> newSet = new HashSet<Long>();
+            Set<Long> newSet = new HashSet<>();
 
             if (deleteSet != null) {
 
@@ -348,7 +341,7 @@ public class SongbookManageActivity extends Activity {
 
             progressDialog.dismiss();
 
-            String message = null;
+            String message;
 
             if (errorMessage != null) {
 

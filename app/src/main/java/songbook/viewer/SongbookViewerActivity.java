@@ -1,5 +1,6 @@
 package songbook.viewer;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,20 +10,22 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.ListFragment;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SimpleCursorAdapter;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.ListFragment;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -36,8 +39,7 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
 
     private final String TAG = SongbookViewerActivity.class.getCanonicalName();
     private SongbookService mSongbookService;
-    private long currentCatalogId = SongbookService.PARAM_INVALID_SBID;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className, IBinder service) {
 
@@ -51,6 +53,64 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
         }
 
     };
+
+    private long currentCatalogId = SongbookService.PARAM_INVALID_SBID;
+
+    private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+
+                        Intent data = result.getData();
+
+                        if (data != null) {
+
+                            int command = data.getIntExtra(SongbookManageActivity.RESULT_COMMAND, Integer.MIN_VALUE);
+
+                            Log.d(TAG, "command = " + command);
+
+                            switch (command) {
+
+                                case SongbookManageActivity.CONTEXT_DELETE:
+
+                                    long[] deleteList = data.getLongArrayExtra(SongbookManageActivity.RESULT_DELETELIST);
+
+                                    if (deleteList != null) {
+
+                                        for (long songBookId : deleteList) {
+
+                                            if (currentCatalogId == songBookId) {
+                                                new InitTask(false).execute(SongbookService.PARAM_INVALID_SBID);
+                                                break;
+                                            }
+
+                                        }
+
+                                    }
+
+                                    break;
+
+                                case SongbookManageActivity.CONTEXT_LOAD:
+
+                                    long songBookId = data.getLongExtra(SongbookManageActivity.RESULT_LOADSBID, SongbookService.PARAM_INVALID_SBID);
+
+                                    if (songBookId != SongbookService.PARAM_INVALID_SBID && songBookId != currentCatalogId) {
+                                        new InitTask(true).execute(songBookId);
+                                    }
+
+                                    break;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            });
 
     void doBindService() {
 
@@ -74,55 +134,6 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
 
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        Log.d(TAG, "onActivityResult");
-
-        if (data != null) {
-
-            int command = data.getIntExtra(SongbookManageActivity.RESULT_COMMAND, Integer.MIN_VALUE);
-
-            Log.d(TAG, "command = " + command);
-
-            switch (command) {
-
-                case SongbookManageActivity.CONTEXT_DELETE:
-
-                    long[] deleteList = data.getLongArrayExtra(SongbookManageActivity.RESULT_DELETELIST);
-
-                    if (deleteList != null) {
-
-                        for (long songBookId : deleteList) {
-
-                            if (currentCatalogId == songBookId) {
-                                new InitTask(false).execute(SongbookService.PARAM_INVALID_SBID);
-                                break;
-                            }
-
-                        }
-
-                    }
-
-                    break;
-
-                case SongbookManageActivity.CONTEXT_LOAD:
-
-                    long songBookId = data.getLongExtra(SongbookManageActivity.RESULT_LOADSBID, SongbookService.PARAM_INVALID_SBID);
-
-                    if (songBookId != SongbookService.PARAM_INVALID_SBID && songBookId != currentCatalogId) {
-                        new InitTask(true).execute(songBookId);
-                    }
-
-                    break;
-
-            }
-
-        }
-
-    }
-
     /**
      * Called when the activity is first created.
      */
@@ -132,12 +143,10 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        final CheckBox checkBoxArtist = (CheckBox) findViewById(R.id.bookListFragment).findViewById(R.id.checkBoxArtist);
+        final CheckBox checkBoxArtist = findViewById(R.id.bookListFragment).findViewById(R.id.checkBoxArtist);
 
-        checkBoxArtist.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                new ByArtistToggleTask().execute(null, null, null);
-            }
+        checkBoxArtist.setOnClickListener((View v) -> {
+            new ByArtistToggleTask().execute(null, null, null);
         });
 
         Log.d(TAG, "onCreate");
@@ -170,17 +179,14 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
 
         searchView.setOnQueryTextListener(this);
 
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+        searchView.setOnQueryTextFocusChangeListener((View v, boolean hasFocus) -> {
 
-            public void onFocusChange(View view, boolean hasFocus) {
-
-                if (!hasFocus) {
-                    searchView.setQuery("", false);
-                    searchView.setIconified(true);
-                    searchItem.collapseActionView();
-                }
-
+            if (!hasFocus) {
+                searchView.setQuery("", false);
+                searchView.setIconified(true);
+                searchItem.collapseActionView();
             }
+
         });
 
         return super.onCreateOptionsMenu(menu);
@@ -204,7 +210,9 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
 
         Log.d(TAG, "onOptionsItemSelected");
 
-        startActivityForResult(new MANAGE_SONGBOOK(), 1);
+        Intent intent = new MANAGE_SONGBOOK();
+
+        activityResultLauncher.launch(intent);
 
         return true;
 
@@ -252,7 +260,7 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
     class InitTask extends AsyncTask<Long, Void, Void> {
 
         private final String TAG = InitTask.class.getCanonicalName();
-        private boolean displayLoadingMessage = false;
+        private final boolean displayLoadingMessage;
         private ProgressDialog progressDialog;
 
         private ArrayAdapter<String> arrAdapter;
@@ -358,7 +366,7 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
             ListFragment listFrag = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.bookListFragment);
 
             if (listFrag.getListAdapter() == null) {
-                arrAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.one_line_list_item, R.id.text1);
+                arrAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.one_line_list_item, R.id.text1);
                 listFrag.setListAdapter(arrAdapter);
             } else {
                 arrAdapter = (ArrayAdapter<String>) listFrag.getListAdapter();
@@ -424,7 +432,7 @@ public class SongbookViewerActivity extends FragmentActivity implements OnIndexS
             ListFragment listFrag = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.bookListFragment);
 
             if (listFrag.getListAdapter() == null) {
-                arrAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.one_line_list_item, R.id.text1);
+                arrAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.one_line_list_item, R.id.text1);
                 listFrag.setListAdapter(arrAdapter);
             } else {
                 arrAdapter = (ArrayAdapter<String>) listFrag.getListAdapter();

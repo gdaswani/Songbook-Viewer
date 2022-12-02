@@ -64,25 +64,21 @@ public class SongbookAddActivity extends Activity {
 
         // Initialize Import Button
 
-        final Button importButton = (Button) findViewById(R.id.buttonImportSongbook);
+        final Button importButton = findViewById(R.id.buttonImportSongbook);
         final InputStream inputStream = is;
 
-        importButton.setOnClickListener(new View.OnClickListener() {
+        importButton.setOnClickListener((View v) -> {
 
-            public void onClick(View view) {
+            String nameValue = ((EditText) findViewById(R.id.importNameEdit))
+                    .getText().toString();
 
-                String nameValue = ((EditText) findViewById(R.id.importNameEdit))
-                        .getText().toString();
-
-                new ImportTask()
-                        .execute(new ImportParameter()
-                                .setInputStream(inputStream)
-                                .setName(nameValue)
-                                .setDescription(
-                                        ((EditText) findViewById(R.id.importDescEdit))
-                                                .getText().toString()));
-
-            }
+            new ImportTask()
+                    .execute(new ImportParameter()
+                            .setInputStream(inputStream)
+                            .setName(nameValue)
+                            .setDescription(
+                                    ((EditText) findViewById(R.id.importDescEdit))
+                                            .getText().toString()));
 
         });
 
