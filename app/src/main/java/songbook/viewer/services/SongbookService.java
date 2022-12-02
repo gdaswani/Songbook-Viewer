@@ -313,10 +313,12 @@ public class SongbookService extends Service {
         return isSuccess;
     }
 
-    public boolean importSongbook(InputStream input, String name, String desc,
-                                  boolean defaultFlag) {
+    public List<Exception> importSongbook(InputStream input, String name, String desc,
+                                          boolean defaultFlag) {
 
         Log.i(TAG, "importSongbook");
+
+        List<Exception> returnValue = new ArrayList<>();
 
         if (input == null) {
             throw new IllegalArgumentException("Invalid input");
@@ -345,21 +347,34 @@ public class SongbookService extends Service {
 
             String strLine = null;
 
+            int currentLine = 0;
+
             while ((strLine = bReader.readLine()) != null) {
+
+                currentLine++;
 
                 if (strLine.trim().length() > 0) {
 
                     String[] data = strLine.split("\\|");
 
+                    int index;
+
+                    try {
+                        index = Integer.parseInt(data[0]);
+                    } catch (NumberFormatException numE) {
+                        throw new IllegalArgumentException(String.format("Invalid content, lineNumber=[%1$d], first column not an integer=[%2$s]", currentLine, data[0]));
+                    }
+
                     if (data.length >= 2 && data.length <= 3) {
                         songBook.addSong(new Song(0L, 0L, data[1].trim(),
-                                data.length == 3 ? data[2].trim() : "", Integer
-                                .parseInt(data[0])));
+                                data.length == 3 ? data[2].trim() : "", index));
                     } else {
-                        throw new IllegalArgumentException("Invalid content");
+                        throw new IllegalArgumentException(String.format("Invalid content, lineNumber=[%1$d], line=[%2$s]", currentLine, strLine));
                     }
 
                 }
+
+
             }
 
             if (false == songBook.getSongs().isEmpty()) {
@@ -399,15 +414,15 @@ public class SongbookService extends Service {
 
             }
 
-        } catch (IOException error) {
-            throw new IllegalStateException(error);
+        } catch (Exception error) {
+            returnValue.add(error);
         } finally {
 
             if (bReader != null) {
                 try {
                     bReader.close();
                 } catch (IOException error) {
-                    throw new IllegalStateException(error);
+                    returnValue.add(new IllegalStateException(error));
                 }
             }
 
@@ -417,7 +432,7 @@ public class SongbookService extends Service {
 
         }
 
-        return false;
+        return returnValue;
     }
 
     public boolean existSongbookDefault() {

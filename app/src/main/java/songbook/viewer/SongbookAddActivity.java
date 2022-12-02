@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 import songbook.viewer.services.SongbookService;
 
@@ -179,18 +180,22 @@ public class SongbookAddActivity extends Activity {
 
             Log.d(TAG, "doInBackground - starting");
 
-            try {
+            List<Exception> errors = mSongbookService.importSongbook(params[0].getInputStream(), params[0].getName(), params[0].getDescription(), params[0].isDefaultFlag());
 
-                mSongbookService.importSongbook(params[0].getInputStream(), params[0].getName(), params[0].getDescription(), params[0].isDefaultFlag());
+            if (errors.size() > 0) {
 
-            } catch (IllegalArgumentException error) {
-                errorMessage = error.getMessage();
-                Log.e(TAG, errorMessage);
+                for (Exception e : errors) {
+                    Log.e(TAG, e.getMessage());
+                }
+
+                errorMessage = errors.get(0).getMessage();
+
             }
 
             Log.d(TAG, "doInBackground - finished");
 
             return null;
+
         }
 
         protected void onPostExecute(Void ignore) {
@@ -203,7 +208,7 @@ public class SongbookAddActivity extends Activity {
 
                 Log.e(TAG, errorMessage);
 
-                message = getString(R.string.addsb_task_import_failure);
+                message = String.format("%1$s - %2$s", getString(R.string.addsb_task_import_failure), errorMessage);
 
             } else {
                 message = getString(R.string.addsb_task_import_success);
